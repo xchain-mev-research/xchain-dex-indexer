@@ -1,0 +1,282 @@
+
+type Token @entity {
+  # token address
+  id: ID!
+  # token symbol
+  symbol: String!
+  # token name 
+  name: String!
+  # token decimals
+  decimals: Int!
+}
+
+# not stored
+enum DexType{
+  STELLASWAP_V2, 
+  BEAMSWAP_V2,
+  
+  STELLASWAP_STABLE_AMM, 
+  BEAMSWAP_STABLE_AMM,
+
+  STELLASWAP_V3, 
+  BEAMSWAP_V3,
+
+  STELLASWAP_V4
+
+}
+
+# -------------- UNISWAP V2 FORKS -----------------
+
+type V2Pool @entity {
+
+  id: ID!
+
+  createdAtBlockNumber: Int!
+  createdAt: DateTime
+ 
+  token0: Token!
+  token1: Token!
+
+  dex: DexType!
+}
+
+# Tot bytes: 270-300  bytes
+type V2PoolSnapshot  @entity {
+  id: ID! # 50bytes
+  pool: V2Pool! # 50bytes
+
+  blockNumber: Int! # 4bytes
+
+  # If null => final price of the block (after all tx)
+  afterTxId: String  # 70bytes
+
+  """
+  Priority of the transaction or operation for placement in the block:
+  - EVM: priorityFee + baseFee
+  - Substrate: tip + weightFee
+  """ 
+  priorityInclusionFeePerUnit: BigInt # 16–24bytes
+
+  # Required to sort price changes within a block
+  # index is the index of the transaction that leads to this price
+  index: Int # 4bytes
+
+  reserve0: BigDecimal! # 24bytes
+  reserve1: BigDecimal! # 24bytes
+
+  token0Price: BigDecimal! # 12bytes
+  token1Price: BigDecimal! # 12bytes
+}
+
+# END ---------- UNISWAP V2 FORKS -----------------
+
+
+# -------------- UNISWAP V3 FORKS -----------------
+
+type V3Pool @entity {
+  id: ID!
+
+  createdAtBlockNumber: Int!
+  createdAt: DateTime!
+
+  token0: Token!
+  token1: Token!
+
+  # Only for Uniswap V3, ignored for Algebra
+  feeTier: BigInt!
+
+  dex: DexType!
+}
+
+# Tot bytes: 250-280  bytes
+type V3PoolSnapshot @entity {
+  id: ID! # 50bytes
+  pool: V3Pool! # 50bytes
+
+  blockNumber: Int! # 4bytes
+
+  # If null => final snapshot of the block
+  afterTxId: String # 70bytes
+
+  """
+  Priority of the transaction or operation for placement in the block:
+  - EVM: priorityFee + baseFee
+  - Substrate: tip + weightFee
+  """
+  priorityInclusionFeePerUnit: BigInt # 16–24bytes
+
+  # Required to sort snapshots within the block
+  index: Int # 4bytes
+
+  fee: BigInt # Only for Algebra (V3Stellaswap), optional. 8bytes
+
+  liquidity: BigInt! # 8bytes
+  sqrtPrice: BigInt! # 8bytes
+
+  tick: Int # 4bytes
+
+  token0Price: BigDecimal! # 12bytes
+  token1Price: BigDecimal! # 12bytes
+
+  ticks: [V3PoolSnapshotTick!]! @derivedFrom(field: "poolSnapshot")
+}
+
+# Tot bytes: 125-150  bytes
+type V3PoolSnapshotTick @entity {
+  id: ID! # 50bytes 
+  poolSnapshot: V3PoolSnapshot! # 50bytes
+
+  tickIdx: BigInt! # 8bytes
+
+  liquidityGross: BigInt! # 8bytes
+  liquidityNet: BigInt! # 8bytes
+}
+
+# END ---------- UNISWAP V3 FORKS -----------------
+
+
+# -------------- UNISWAP V4 FORKS -----------------
+
+type V4Pool @entity {
+  id: ID!
+
+  createdAtBlockNumber: Int!
+  createdAt: DateTime!
+
+  token0: Token!
+  token1: Token!
+
+  # Some pools have a fixed fee, others have a dynamic fee
+  feeTier: BigInt!
+
+  dex: DexType!
+}
+
+# Tot bytes: 270-300  bytes
+type V4PoolSnapshot @entity {
+  id: ID! # 50bytes
+  pool: V4Pool! # 50bytes
+
+  blockNumber: Int! # 4bytes
+
+  # If null => final snapshot of the block
+  afterTxId: String # 70bytes
+
+  """
+  Priority of the transaction or operation for placement in the block:
+  - EVM: priorityFee + baseFee
+  - Substrate: tip + weightFee
+  """
+  priorityInclusionFeePerUnit: BigInt # 16–24bytes
+
+  # Required to sort snapshots within the block
+  index: Int # 4bytes
+
+  fee: BigInt # 8bytes
+  # In algebra the pluginFee is always 0
+  pluginFee: BigInt # 8bytes
+
+  liquidity: BigInt! # 8bytes
+  sqrtPrice: BigInt! # 8bytes
+
+  tick: Int # 4bytes
+
+  token0Price: BigDecimal! # 12bytes
+  token1Price: BigDecimal! # 12bytes
+
+  ticks: [V4PoolSnapshotTick!]! @derivedFrom(field: "poolSnapshot")
+}
+
+# Tot bytes: 125-150  bytes
+type V4PoolSnapshotTick @entity {
+  id: ID! # 50bytes
+  poolSnapshot: V4PoolSnapshot! # 50bytes
+
+  tickIdx: BigInt! # 8bytes
+  
+  liquidityGross: BigInt! # 8bytes
+  liquidityNet: BigInt!   # 8bytes
+}
+
+# END ---------- UNISWAP V4 FORKS -----------------
+
+
+# -------------- CRUVEfy forks -----------------
+
+type StablePool @entity {
+  id: ID!
+
+  createdAtBlockNumber: Int!
+  createdAt: DateTime!
+
+  dex: DexType!
+
+  """ Number of coins composing the pool """
+  coinCount: Int!
+
+  """ List of coins that compose the pool """
+  coins: [StablePoolCoin!] @derivedFrom(field: "pool")
+}
+
+type StablePoolCoin @entity {
+  """ Format: <pool_id>-<coin_index> """
+  id: ID!
+
+  " Coin index "
+  index: Int!
+
+  pool: StablePool!
+  token: Token!
+}
+
+type StablePoolSnapshot @entity {
+  id: ID!
+  pool: StablePool! 
+
+  blockNumber: Int!
+
+  afterTxId: String 
+  index: Int
+  
+  """
+  Priority of the transaction or operation for placement in the block:
+  - EVM: priorityFee + baseFee
+  - Substrate: tip + weightFee
+  """
+  priorityInclusionFeePerUnit: BigInt
+
+  """ Amplification coefficient multiplied by n * (n - 1) """
+  a: BigInt!
+  
+  initialA: BigInt!
+  futureA: BigInt!
+  initialATime: BigInt!
+  futureATime: BigInt!
+
+  " Fee to charge for exchanges "
+  fee: BigInt!
+
+  " Average dollar value of pool token "
+  virtualPrice: BigDecimal!
+
+  """ Pool balance of coins """
+  coins: [StablePoolSnapshotCoinBalance!] @derivedFrom(field: "poolSnapshot")
+
+  " The pool is paused and it can't be used for exchanges "
+  paused: Boolean!
+
+}
+
+type StablePoolSnapshotCoinBalance @entity {
+  id: ID!
+
+  poolSnapshot: StablePoolSnapshot!
+  coin: StablePoolCoin!
+
+  " Pool balance of these coin "
+  balance: BigInt!
+
+}
+
+# END ---------- CRUVEfy forks -----------------
+

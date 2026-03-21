@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "lib",
+        "module": "commonjs",
+        "target": "es2020",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "baseUrl": ".", // punto di partenza per i path
+        "ignoreDeprecations": "6.0",
+        "paths": {
+            "@app/*": [
+                "src/app/*"
+            ],
+            "@abi/*": [
+                "src/abi/*"
+            ],
+            "@utils/*": [
+                "src/app/utils/*"
+            ],
+            "@model/*": [
+                "src/model/*"
+            ],
+            "@core/*": [
+                "src/app/core/*"
+            ],
+            "@moonbeam/*": [
+                "src/app/chains/moonbeam/*"
+            ]
+        }
+    }
+}

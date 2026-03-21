@@ -1,0 +1,21 @@
+/node_modules
+
+package-lock.json
+
+lib/
+logs/
+db/migrations/
+
+# Local environment — never commit secrets
+.env
+
+# Internal notes and AI context files
+CONTEXT.md
+
+# IDE and editor config
+launch.json
+.vscode/
+.idea/
+
+/appunti
+/contracts

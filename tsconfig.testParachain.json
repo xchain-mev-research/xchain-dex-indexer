@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [
+        "src/app/core",
+        "src/app/chains/testParachain"
+    ],
+    "exclude": [
+        "src/app/chains/moonbeam"
+    ]
+}

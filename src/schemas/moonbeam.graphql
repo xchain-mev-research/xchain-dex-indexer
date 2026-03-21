@@ -1,0 +1,40 @@
+
+
+
+
+# Tot 235-250bytes
+type StDotVaultSnapshot @entity {
+  id: ID! # 50bytes
+  blockNumber: Int! # 4bytes
+  paused: Boolean! # 1byte
+
+  # If null => final snapshot of the block
+  afterTxId: String # 70bytes
+
+  """
+  Priority of the transaction or operation for placement in the block:
+  - EVM: priorityFee + baseFee
+  - Substrate: tip + weightFee
+  """
+  priorityInclusionFeePerUnit: BigInt # 16–24bytes
+
+  # Required to sort snapshots within the block
+  index: Int # 4bytes
+
+  # Total DOT deposited in the contract (includes staking rewards)
+  totalDot: BigInt! # 30bytes
+
+  # Total stDOT in circulation
+  totalStDot: BigInt! # 30bytes
+
+  # Exchange rate DOT/stDOT: how much 1 stDOT is worth in DOT
+  exchangeRate: BigDecimal! # 6 decimals, 20bytes
+
+  # Fee management
+  # 4bytes
+  fee: Int!                # Total fee in basis points (e.g., 50 = 0.5%)
+  # 4bytes
+  feeTreasuryBP: Int!      # Portion of the fee for the treasury
+  # 4bytes
+  feeDevelopersBP: Int!    # Portion of the fee for the developers
+}
