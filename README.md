@@ -717,6 +717,7 @@ This is per-DEX and off by default, so it only increases storage for the DEXs wh
 
 ## Roadmap
 
+- [ ] Bootstrap pool state from on-chain data at indexer start block
 - [ ] Implement Stable AMM indexer (EVM — schema and entity models already defined)
 - [ ] Substrate XYK pallet indexer (e.g. Hydration)
 - [ ] Docker Compose setup for one-command startup (indexer + DB + GraphQL)
