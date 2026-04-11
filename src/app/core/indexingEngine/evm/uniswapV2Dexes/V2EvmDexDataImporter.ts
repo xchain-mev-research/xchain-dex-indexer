@@ -3,10 +3,12 @@ import { ConverterUtils } from '@app/core/utils/ConverterUtils'
 import { AbiUtils } from '@app/core/utils/evm/AbiUtils'
 import { DexType, V2Pool, V2PoolSnapshot } from '@model/generated'
 import { BigDecimal } from '@subsquid/big-decimal'
+import { EntityManager } from 'typeorm'
 import { DexConfig } from '../../../config/DexConfig'
 import { V3MathUtils } from '../../../utils/V3MathUtils'
 import { EvmBlock, EvmContext } from '../../AbstractDataImporter'
 import { AbstractDexDataImporter } from '../../base/AbstractDexDataImporter'
+import { V2SnapshotBootstrapper } from '../../bootstrap/V2SnapshotBootstrapper'
 import { EvmUtils } from '../EvmUtils'
 import { Log, createV2Processor } from './V2EvmDexProcessor'
 import { V2PoolRepository } from '@app/core/data/V2PoolRepository'
@@ -62,6 +64,14 @@ export class V2EvmDexDataImporter extends AbstractDexDataImporter<
     protected async loadData() {
         return await new V2PoolRepository((this.getCtx().store as any).em())
             .loadPoolsData(this.dexConfig.dexType);
+    }
+
+    protected async runBootstrap(bootstrapBlock: number, em: EntityManager): Promise<void> {
+        await new V2SnapshotBootstrapper(
+            this.dexConfig.bootstrapConfig!,
+            this.dexConfig.dexType,
+            this.dexConfig.getTrackedPoolsIds(),
+        ).run(bootstrapBlock, em);
     }
 
     // END ---------- OVERRIDES ----------

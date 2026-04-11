@@ -27,7 +27,9 @@
     "start:gql": "PARACHAIN=moonbeam npx ts-node src/scripts/runGql.ts ",
     "integrityTest": "PARACHAIN=moonbeam npx ts-node src/scripts/runDataIntegrityTest.ts ",
     "start:moonbeam": "PARACHAIN=moonbeam npx ts-node src/scripts/run.ts ",
-    "start:testChain": "PARACHAIN=testParachain npx ts-node src/scripts/run.ts "
+    "start:testChain": "PARACHAIN=testParachain npx ts-node src/scripts/run.ts ",
+    "storeTokens:moonbeam": "PARACHAIN=moonbeam npx ts-node -r dotenv/config -r tsconfig-paths/register src/scripts/runStoreTokens.ts",
+    "storePools:moonbeam": "PARACHAIN=moonbeam npx ts-node -r dotenv/config -r tsconfig-paths/register src/scripts/runStorePools.ts"
   },
   "dependencies": {
     "@polkadot/api": "^15.9.2",

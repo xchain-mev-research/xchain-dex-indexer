@@ -10,7 +10,7 @@ const SCHEMA_DIR = path.resolve(__dirname, '../schemas')
 const COMMON_SCHEMA = path.join(SCHEMA_DIR, 'common.graphql')
 const MERGED_SCHEMA = path.resolve(__dirname, '../../schema.graphql')
 
-const PARACHAINS_DIR = path.resolve(__dirname, '../app')
+const PARACHAINS_DIR = path.resolve(__dirname, '../app/chains')
 const DB_MIGRATIONS_DIR = path.resolve(__dirname, '../../db/migrations')
 
 const JS_COMPILED_DIR = path.resolve(__dirname, '../../lib')

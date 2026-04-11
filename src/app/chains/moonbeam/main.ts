@@ -33,13 +33,13 @@ const DO_COMMIT = process.env.DRY_RUN !== 'true';
 // Override opzionale del range di blocchi tramite variabili d'ambiente.
 // Se non impostati, ogni importer parte dal blocco di deploy della propria factory.
 const ENV_FROM_BLOCK = process.env.FROM_BLOCK ? parseInt(process.env.FROM_BLOCK) : undefined;
-const ENV_TO_BLOCK   = process.env.TO_BLOCK   ? parseInt(process.env.TO_BLOCK)   : undefined;
+const ENV_TO_BLOCK = process.env.TO_BLOCK ? parseInt(process.env.TO_BLOCK) : undefined;
 
 /** Restituisce il range from/to per un importer dato il suo blocco di default. */
 function blockRange(defaultFrom: number): { from: number; to: number | undefined } {
     return {
         from: ENV_FROM_BLOCK ?? defaultFrom,
-        to:   ENV_TO_BLOCK,
+        to: ENV_TO_BLOCK,
     };
 }
 
@@ -88,12 +88,13 @@ async function main(): Promise<void> {
     logger.info('---- MOONBEAM INDEXER STARTED ----');
     if (!DO_COMMIT) logger.info('DRY_RUN mode — nessun dato verrà scritto nel database');
 
-    await indexStellaSwapV3();
     // await indexStellaSwapV2();
-    // await indexBeamswapV2();
-    // await indexBeamswapV3();
+    await indexStellaSwapV3();
     // await indexStellaSwapV4();
     // await indexStDotVault();
+
+    // await indexBeamswapV2();
+    // await indexBeamswapV3();
 
     logger.info('---- MOONBEAM INDEXER FINISHED ----');
 }

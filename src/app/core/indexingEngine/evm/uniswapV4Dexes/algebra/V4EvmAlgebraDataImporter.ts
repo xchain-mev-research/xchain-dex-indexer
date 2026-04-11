@@ -6,8 +6,10 @@ import { V4PoolRepository } from '@app/core/data/V4PoolRepository'
 import { ParachainInfo } from '@app/core/parachainUtils/ParachainConst'
 import { ConverterUtils } from '@app/core/utils/ConverterUtils'
 import { DexType, V4Pool, V4PoolSnapshot, V4PoolSnapshotTick } from '@model/generated'
+import { EntityManager } from 'typeorm'
 import { EvmBlock, EvmContext } from '../../../AbstractDataImporter'
 import { AbstractDexDataImporter } from '../../../base/AbstractDexDataImporter'
+import { V4SnapshotBootstrapper } from '../../../bootstrap/V4SnapshotBootstrapper'
 import { EvmUtils } from '../../EvmUtils'
 import { GenericTickTracker } from '../../uniswapV3Dexes/GenericTickTracker'
 import { UniswapV3ImporterUtils } from '../../uniswapV3Dexes/UniswapV3ImporterUtils'
@@ -121,6 +123,13 @@ export class V4EvmAlgebraDataImporter extends AbstractDexDataImporter<
         return data;
     }
 
+    protected async runBootstrap(bootstrapBlock: number, em: EntityManager): Promise<void> {
+        await new V4SnapshotBootstrapper(
+            this.dexConfig.bootstrapConfig!,
+            this.dexConfig.dexType,
+            this.dexConfig.getTrackedPoolsIds(),
+        ).run(bootstrapBlock, em);
+    }
 
     protected getTxHash(log: Log): string {
         return log.getTransaction().hash;

@@ -1,4 +1,3 @@
-
 import { execSync } from 'child_process'
 import * as dotenv from 'dotenv'
 
@@ -12,7 +11,6 @@ if (!parachain) {
 }
 process.env.DB_URL = dbPrefix + parachain;
 
-var command = `clear && npx tsc && npx ts-node --project tsconfig.json -r dotenv/config -r tsconfig-paths/register src/app/chains/${parachain}/main.ts`;
+const command = `npx ts-node -r dotenv/config -r tsconfig-paths/register src/app/chains/${parachain}/storeAllPools.ts`;
 
-execSync(command, { stdio: 'inherit' })
-
+execSync(command, { stdio: 'inherit', env: process.env })

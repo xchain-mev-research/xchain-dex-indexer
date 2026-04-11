@@ -1,6 +1,7 @@
 import { ParachainInfo } from "@app/core/parachainUtils/ParachainConst";
 import { DexType } from "src/model";
 import { MoonbeamDexConfigRegistry } from "../../chains/moonbeam/config/MoonbeamDexConfigRegistry";
+import { ISnapshotBootstrapConfig } from "../indexingEngine/bootstrap/SnapshotBootstrapConfig";
 
 export interface IDexConfig {
     dexType: DexType;
@@ -19,6 +20,10 @@ export interface IDexConfig {
 
     // Indexing options
     intraBlockSnapshots?: boolean;  // default: false — If true, saves a snapshot for each transaction that modifies the pool.
+
+    // Bootstrap: if set, the indexer fetches pool snapshots from the official subgraph
+    // at (fromBlock - 1) before starting, so gap-filling works from the very first block.
+    bootstrapConfig?: ISnapshotBootstrapConfig;
 }
 
 const dexConfigMap: Map<DexType, Map<string, DexConfig>> = new Map();
@@ -78,6 +83,9 @@ export class DexConfig {
 
     // Indexing options
     get intraBlockSnapshots() { return this._config.intraBlockSnapshots ?? false; }
+
+    // Bootstrap
+    get bootstrapConfig() { return this._config.bootstrapConfig ?? null; }
 
 }
 

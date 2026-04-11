@@ -2,6 +2,7 @@ import { logger } from "@app/core/log/logger";
 import { IgnoreCaseMap } from "@app/core/trackedPools/trackedPoolsTypes";
 import { DexType, Token } from "@model/generated";
 import { Entity } from "@subsquid/typeorm-store/lib/store";
+import { EntityManager } from "typeorm";
 import { DexConfig } from "../../config/DexConfig";
 import { ParachainInfo } from '../../parachainUtils/ParachainConst';
 import { AbstractDataImporter, EvmBlock, EvmContext, SubstrateBlock, SubstrateContext } from "../AbstractDataImporter";
@@ -81,11 +82,36 @@ export abstract class AbstractDexDataImporter
 
         if (!this.poolRegistry) {
             const { poolsMap, snapshotMap } = await this.loadData();
-            this.poolRegistry = new PoolRegistry(poolsMap);
-            logger.info("Pools caricati")
 
-            this.poolSnapshotTracker = new PoolSnapshotTracker(snapshotMap);
+            // Bootstrap: if no snapshots exist and a bootstrap config is provided, fetch the
+            // pool state from the official subgraph at (fromBlock - 1) and persist it so that
+            // gap-filling and snapshot tracking work correctly from the very first block.
+            if (snapshotMap.size === 0 && this.dexConfig.bootstrapConfig) {
+                const bootstrapBlock = ctx.blocks[0].header.height - 1;
+                const em = (ctx.store as any).em() as EntityManager;
+                logger.info(`[Bootstrap][${this.dexConfig.dexType}] No snapshots found — fetching from subgraph at block ${bootstrapBlock}...`);
+
+                await this.runBootstrap(bootstrapBlock, em);
+
+                const bootstrappedData = await this.loadData();
+                this.poolRegistry = new PoolRegistry(bootstrappedData.poolsMap);
+                this.poolSnapshotTracker = new PoolSnapshotTracker(bootstrappedData.snapshotMap);
+            } else {
+                this.poolRegistry = new PoolRegistry(poolsMap);
+                this.poolSnapshotTracker = new PoolSnapshotTracker(snapshotMap);
+            }
+
+            logger.info("Pools caricati")
         }
+    }
+
+    /**
+     * Override in subclasses to fetch pool snapshots from an official subgraph and
+     * persist them to the DB before the first indexing batch runs.
+     * Called only when snapshotMap is empty and bootstrapConfig is set.
+     */
+    protected async runBootstrap(bootstrapBlock: number, em: EntityManager): Promise<void> {
+        // no-op by default
     }
 
     protected async processIgnoredBlock(height: number) {

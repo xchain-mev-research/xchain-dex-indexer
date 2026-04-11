@@ -1,5 +1,6 @@
 import { DexConfig, IDexConfig } from "@app/core/config/DexConfig";
 import { Parachain, ParachainInfo } from '@app/core/parachainUtils/ParachainConst';
+import { BEAMSWAP_V3_QUERY, STELLASWAP_V3_QUERY, UNISWAP_V2_QUERY } from "@app/core/dataIntegrityTest/support/officialSubgraphQueries";
 
 import * as v2FactoryAbi from 'src/abi/v2Dexes/factory/v2Factory';
 import * as v2PoolAbi from '@abi/v2Dexes/pair/v2Pair';
@@ -53,7 +54,11 @@ export class MoonbeamDexConfigRegistry {
             trackedPools: new Map(STELLASWAP_TRACKED_POOLS_V2.map(p => [p.id, null])),
             factoryAbi: v2FactoryAbi,
             poolAbi: v2PoolAbi,
-            chain: MOONBEAM
+            chain: MOONBEAM,
+            bootstrapConfig: {
+                subgraphUrl: "https://analytics.stellaswap.com/api/graphql/v2",
+                subgraphQuery: UNISWAP_V2_QUERY,
+            },
         });
 
         store({
@@ -63,7 +68,11 @@ export class MoonbeamDexConfigRegistry {
             trackedPools: new Map(BEAMSWAP_TRACKED_POOLS_V2.map(p => [p.id, null])),
             factoryAbi: v2FactoryAbi,
             poolAbi: v2PoolAbi,
-            chain: MOONBEAM
+            chain: MOONBEAM,
+            bootstrapConfig: {
+                subgraphUrl: "https://graph.beamswap.io/subgraphs/name/beamswap/beamswap-amm-v2",
+                subgraphQuery: UNISWAP_V2_QUERY,
+            },
         });
 
         // END ----- V2 ------
@@ -78,7 +87,12 @@ export class MoonbeamDexConfigRegistry {
             factoryAbi: algebraFactoryAbi,
             poolAbi: algebraPoolAbi,
             chain: MOONBEAM,
-            intraBlockSnapshots: true
+            intraBlockSnapshots: true,
+            bootstrapConfig: {
+                subgraphUrl: "https://analytics.stellaswap.com/api/graphql/v3",
+                subgraphQuery: STELLASWAP_V3_QUERY,
+                isAlgebraFee: true,
+            },
         });
 
         store({
@@ -88,7 +102,12 @@ export class MoonbeamDexConfigRegistry {
             trackedPools: new Map(BEAMSWAP_TRACKED_POOLS_V3.map(p => [p.id, null])),
             factoryAbi: v3FactoryAbi,
             poolAbi: v3PoolAbi,
-            chain: MOONBEAM
+            chain: MOONBEAM,
+            bootstrapConfig: {
+                subgraphUrl: "https://graph.beamswap.io/subgraphs/name/beamswap/beamswap-amm-v3/",
+                subgraphQuery: BEAMSWAP_V3_QUERY,
+                isAlgebraFee: false,
+            },
         });
 
         // END ----- V3 ------
@@ -101,7 +120,12 @@ export class MoonbeamDexConfigRegistry {
             trackedPools: new Map(STELLASWAP_TRACKED_POOLS_V4.map(p => [p.id, null])),
             factoryAbi: v4FactoryAbi,
             poolAbi: v4PoolAbi,
-            chain: MOONBEAM
+            chain: MOONBEAM,
+            bootstrapConfig: {
+                subgraphUrl: "https://thegraph.com/explorer/api/playground/Qmbnsdx4euoZmBiX7UV4enssQNtKwJ3yAGRL2Z9Mca1DJu",
+                subgraphQuery: STELLASWAP_V3_QUERY, // V4 subgraph uses the same pool/tick shape
+                isAlgebraFee: true,
+            },
         });
 
         // END ----- V4 ------

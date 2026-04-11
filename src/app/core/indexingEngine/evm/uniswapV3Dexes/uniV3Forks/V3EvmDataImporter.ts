@@ -6,8 +6,10 @@ import { V3PoolRepository } from '@app/core/data/V3PoolRepository'
 import { ParachainInfo } from '@app/core/parachainUtils/ParachainConst'
 import { ConverterUtils } from '@app/core/utils/ConverterUtils'
 import { DexType, V3Pool, V3PoolSnapshot, V3PoolSnapshotTick } from '@model/generated'
+import { EntityManager } from 'typeorm'
 import { EvmBlock, EvmContext } from '../../../AbstractDataImporter'
 import { AbstractDexDataImporter } from '../../../base/AbstractDexDataImporter'
+import { V3SnapshotBootstrapper } from '../../../bootstrap/V3SnapshotBootstrapper'
 import { EvmUtils } from '../../EvmUtils'
 import { UniswapV3ImporterUtils } from '../UniswapV3ImporterUtils'
 import { V3EvmEventChecker } from './V3EvmEventChecker'
@@ -117,6 +119,14 @@ export class V3EvmDataImporter extends AbstractDexDataImporter<
         }
 
         return data;
+    }
+
+    protected async runBootstrap(bootstrapBlock: number, em: EntityManager): Promise<void> {
+        await new V3SnapshotBootstrapper(
+            this.dexConfig.bootstrapConfig!,
+            this.dexConfig.dexType,
+            this.dexConfig.getTrackedPoolsIds(),
+        ).run(bootstrapBlock, em);
     }
 
 
